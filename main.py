@@ -6,6 +6,7 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 import time
 import os
 import threading
+import json
 from os import environ
 
 bot_token = environ.get("TOKEN", "7532801331:AAEG0L9ikxGk8lSOZPEcRwIm1q4cY69jNS0") 
@@ -26,7 +27,7 @@ def downstatus(statusfile, message):
         if os.path.exists(statusfile):
             break
 
-    time.sleep(3)
+    time.sleep(3)      
     while os.path.exists(statusfile):
         with open(statusfile, "r") as downread:
             txt = downread.read()
@@ -42,7 +43,7 @@ def upstatus(statusfile, message):
         if os.path.exists(statusfile):
             break
 
-    time.sleep(3)
+    time.sleep(3)      
     while os.path.exists(statusfile):
         with open(statusfile, "r") as upread:
             txt = upread.read()
@@ -61,7 +62,7 @@ def progress(current, total, message, type):
 @bot.on_message(filters.command(["start"]))
 async def send_start(client: pyrogram.client.Client, message: pyrogram.types.messages_and_media.message.Message):
     await bot.send_message(
-        message.chat.id,
+        message.chat.id, 
         f"**__👋 Hi** **{message.from_user.mention}**, **I am Save Restricted Bot, I can send you restricted content by its post link__**\n\n{USAGE}",
         reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🌐 Update Channel", url="https://t.me/VJ_Botz")]]),
         reply_to_message_id=message.id
@@ -73,14 +74,15 @@ async def save(client: pyrogram.client.Client, message: pyrogram.types.messages_
 
     # Joining chats
     if "https://t.me/+" in message.text or "https://t.me/joinchat/" in message.text:
+
         if acc is None:
             await bot.send_message(message.chat.id, f"**String Session is not Set**", reply_to_message_id=message.id)
             return
 
         try:
-            try:
+            try: 
                 await acc.join_chat(message.text)
-            except Exception as e:
+            except Exception as e: 
                 await bot.send_message(message.chat.id, f"**Error** : __{e}__", reply_to_message_id=message.id)
                 return
             await bot.send_message(message.chat.id, "**Chat Joined**", reply_to_message_id=message.id)
@@ -91,15 +93,17 @@ async def save(client: pyrogram.client.Client, message: pyrogram.types.messages_
 
     # Getting message
     elif "https://t.me/" in message.text:
+
         datas = message.text.split("/")
         temp = datas[-1].replace("?single", "").split("-")
         fromID = int(temp[0].strip())
-        try:
+        try: 
             toID = int(temp[1].strip())
-        except:
+        except: 
             toID = fromID
 
-        for msgid in range(fromID, toID + 1):
+        for msgid in range(fromID, toID+1):
+
             # Private
             if "https://t.me/c/" in message.text:
                 chatid = int("-100" + datas[4])
@@ -109,7 +113,7 @@ async def save(client: pyrogram.client.Client, message: pyrogram.types.messages_
                     return
                 
                 await handle_private(message, chatid, msgid)
-
+            
             # Bot
             elif "https://t.me/b/" in message.text:
                 username = datas[4]
@@ -117,29 +121,30 @@ async def save(client: pyrogram.client.Client, message: pyrogram.types.messages_
                 if acc is None:
                     await bot.send_message(message.chat.id, f"**String Session is not Set**", reply_to_message_id=message.id)
                     return
-                try:
+                try: 
                     await handle_private(message, username, msgid)
-                except Exception as e:
+                except Exception as e: 
                     await bot.send_message(message.chat.id, f"**Error** : __{e}__", reply_to_message_id=message.id)
 
             # Public
             else:
                 username = datas[3]
-                try:
-                    msg = await bot.get_messages(username, msgid)
-                except UsernameNotOccupied:
+
+                try: 
+                    msg  = await bot.get_messages(username, msgid)
+                except UsernameNotOccupied: 
                     await bot.send_message(message.chat.id, f"**The username is not occupied by anyone**", reply_to_message_id=message.id)
                     return
 
-                try:
+                try: 
                     await bot.copy_message(message.chat.id, msg.chat.id, msg.id, reply_to_message_id=message.id)
                 except:
                     if acc is None:
                         await bot.send_message(message.chat.id, f"**String Session is not Set**", reply_to_message_id=message.id)
                         return
-                    try:
+                    try: 
                         await handle_private(message, username, msgid)
-                    except Exception as e:
+                    except Exception as e: 
                         await bot.send_message(message.chat.id, f"**Error** : __{e}__", reply_to_message_id=message.id)
 
             # Wait time
@@ -162,28 +167,51 @@ async def handle_private(message: pyrogram.types.messages_and_media.message.Mess
 
     upsta = threading.Thread(target=lambda: upstatus(f'{message.id}upstatus.txt', smsg), daemon=True)
     upsta.start()
-
+    
     if "Document" == msg_type:
         try:
             thumb = await acc.download_media(msg.document.thumbs[0].file_id)
-        except:
+        except: 
             thumb = None
-        await bot.send_document(message.chat.id, file, thumb=thumb, caption=msg.caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message, "up"])
-        if thumb is not None:
+        
+        await bot.send_document(
+            message.chat.id, 
+            file, 
+            thumb=thumb, 
+            caption=msg.caption, 
+            caption_entities=msg.caption_entities, 
+            reply_to_message_id=message.id, 
+            progress=progress, 
+            progress_args=[message, "up"]
+        )
+        if thumb is not None: 
             os.remove(thumb)
 
     elif "Video" == msg_type:
-        try:
+        try: 
             thumb = await acc.download_media(msg.video.thumbs[0].file_id)
-        except:
+        except: 
             thumb = None
-        await bot.send_video(message.chat.id, file, duration=msg.video.duration, width=msg.video.width, height=msg.video.height, thumb=thumb, caption=msg.caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message, "up"])
-        if thumb is not None:
+
+        await bot.send_video(
+            message.chat.id, 
+            file, 
+            duration=msg.video.duration, 
+            width=msg.video.width, 
+            height=msg.video.height, 
+            thumb=thumb, 
+            caption=msg.caption, 
+            caption_entities=msg.caption_entities, 
+            reply_to_message_id=message.id, 
+            progress=progress, 
+            progress_args=[message, "up"]
+        )
+        if thumb is not None: 
             os.remove(thumb)
 
     elif "Animation" == msg_type:
         await bot.send_animation(message.chat.id, file, reply_to_message_id=message.id)
-
+           
     elif "Sticker" == msg_type:
         await bot.send_sticker(message.chat.id, file, reply_to_message_id=message.id)
 
@@ -193,21 +221,16 @@ async def handle_private(message: pyrogram.types.messages_and_media.message.Mess
     elif "Audio" == msg_type:
         try:
             thumb = await acc.download_media(msg.audio.thumbs[0].file_id)
-        except:
+        except: 
             thumb = None
-        await bot.send_audio(message.chat.id, file, caption=msg.caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message, "up"])
-        if thumb is not None:
+            
+        await bot.send_audio(message.chat.id, file, caption=msg.caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message, "up"])   
+        if thumb is not None: 
             os.remove(thumb)
 
     elif "Photo" == msg_type:
         await bot.send_photo(message.chat.id, file, caption=msg.caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id)
 
     os.remove(file)
-    if os.path.exists(f'{message.id}upstatus.txt'):
-        os.remove(f'{message.id}upstatus.txt')
-    await bot.delete_messages(message.chat.id, [smsg.id])
-
-# Get the type of message
-def get_message_type(msg: pyrogram.types.messages_and_media.message.Message):
-    try:
-        msg.document
+    if os.path.exists(f'{message.id}upstatus.txt'): 
+        os.remove(f'{message.id}up
