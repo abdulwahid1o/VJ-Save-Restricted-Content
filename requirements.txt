@@ -3,4 +3,3 @@ tgcrypto
 flask
 gunicorn==20.1.0
 aiohttp
-python-telegram-bot==20.3
