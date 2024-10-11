@@ -1,3 +1,16 @@
+import time
+from telegram import Bot
+
+bot = Bot(token="YOUR_TOKEN")
+
+def main():
+    while True:
+        # Your bot logic here (e.g., bot polling)
+        time.sleep(10)  # To prevent CPU overuse
+        
+if __name__ == "__main__":
+    main()
+
 import pyrogram
 from pyrogram import Client, filters
 from pyrogram.errors import UserAlreadyParticipant, InviteHashExpired, UsernameNotOccupied
