@@ -1,4 +1,12 @@
+import time
 
+def main():
+    while True:
+        # Your task or logic here
+        time.sleep(10)  # Sleep to avoid high CPU usage
+
+if __name__ == "__main__":
+    main()
 
 import pyrogram
 from pyrogram import Client, filters
